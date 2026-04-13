@@ -4,7 +4,7 @@ CS292C Homework 2 — Problem 2: Hoare Logic VCG for IMP (30 points)
 Implement weakest-precondition-based verification condition generation
 for a simple IMP language, using Z3 to discharge the VCs.
 
-Part (a): Pen-and-paper wp derivation — see README. Goes in writeup.pdf.
+Part (a): Compute wp using your VCG and analyze preconditions with Z3.
 Part (b): Implement wp() and verify() below.
 Part (c): Discover loop invariants for three programs.
 Part (d): Find and fix a bug in a provided invariant.
@@ -228,7 +228,7 @@ def test_abs():
 # Part (c): Invariant Discovery — 8 pts
 #
 # For each program below, replace the `???` invariant with a correct one.
-# [EXPLAIN] in writeup.pdf how you found each invariant and why it works.
+# [EXPLAIN] in a comment how you found each invariant and why it works.
 # ============================================================================
 
 def test_mult():
@@ -354,12 +354,66 @@ def test_buggy_div():
 
 
 # ============================================================================
+# Part (a): WP Derivation via Z3 — 6 pts
+#
+# Build the following program as an IMP AST:
+#   x := x + 1;
+#   if x > 0 then y := x * 2 else y := 0 - x;
+# Postcondition: { y > 0 }
+#
+# 1. Call wp() to get the weakest precondition. Print the Z3 formula.
+# 2. Use Z3 to check whether each of the following is a valid precondition:
+#    - { x >= 0 }
+#    - { x > -1 }
+#    - { x == -1 }
+#    For each, print whether it's valid and add a comment explaining why.
+# ============================================================================
+
+def test_wp_derivation():
+    """
+    Part (a): Use your VCG to compute wp, then check candidate preconditions.
+    TODO: Implement after you finish Part (b).
+    """
+    print("=== Part (a): WP Derivation ===")
+
+    # TODO: Build the IMP AST for the program above
+    # stmt = Seq(Assign('x', ...), If(...))
+    # post = Compare('>', Var('y'), IntConst(0))
+
+    # TODO: Compute wp(stmt, post_z3) and print it
+    # wp_result = wp(stmt, bexp_to_z3(post))
+    # print(f"  wp = {wp_result}")
+
+    # TODO: For each candidate precondition, check if pre → wp is valid
+    # candidates = [
+    #     ("x >= 0",  z3_var('x') >= 0),
+    #     ("x > -1",  z3_var('x') > -1),
+    #     ("x == -1", z3_var('x') == -1),
+    # ]
+    # for name, pre in candidates:
+    #     s = Solver()
+    #     s.add(Not(Implies(pre, wp_result)))
+    #     result = s.check()
+    #     valid = (result == unsat)
+    #     print(f"  {name}: {'VALID' if valid else 'INVALID'}")
+    #     # [EXPLAIN] in a comment: why is this precondition valid or invalid?
+
+    print("  TODO: implement after Part (b)")
+    print()
+
+
+# ============================================================================
 if __name__ == "__main__":
     print("=" * 60)
     print("Part (b): VCG Correctness Tests")
     print("=" * 60)
     test_swap()
     test_abs()
+
+    print("=" * 60)
+    print("Part (a): WP Derivation via Z3")
+    print("=" * 60)
+    test_wp_derivation()
 
     print("=" * 60)
     print("Part (c): Invariant Discovery")

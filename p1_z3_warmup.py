@@ -53,11 +53,13 @@ def part_b():
 #
 # Formula:  f(f(x)) = x  ∧  f(f(f(x))) = x  ∧  f(x) ≠ x
 #
-# STEP 1 (in writeup.pdf): Before running Z3, work out by hand whether this
-#   is SAT or UNSAT. Show your reasoning. (3 pts)
-#   Hint: Apply f to both sides of the first equation. What do you get?
+# STEP 1: Check satisfiability with Z3. (2 pts)
 #
-# STEP 2: Confirm your answer with Z3. (2 pts)
+# STEP 2: Use Z3 to derive WHY the result holds. (3 pts)
+#   Write a series of Z3 validity checks that demonstrate the key reasoning
+#   steps. For example, from f(f(x)) = x, what can you derive about f(f(f(x)))?
+#   Each check should print what it's testing and whether it holds.
+#   Hint: Apply f to both sides of the first equation.
 # ---------------------------------------------------------------------------
 def part_c():
     S = DeclareSort('S')
@@ -74,7 +76,7 @@ def part_c():
         print(f"SAT: {s.model()}")
     else:
         print("UNSAT")
-    # Your hand-worked reasoning goes in writeup.pdf, not here.
+    # TODO: Add Z3 derivation steps below (see STEP 2 above).
     print()
 
 
@@ -85,8 +87,8 @@ def part_c():
 #   (1) Read-over-write HIT:   i = j  →  Select(Store(a, i, v), j) = v
 #   (2) Read-over-write MISS:  i ≠ j  →  Select(Store(a, i, v), j) = Select(a, j)
 #
-# [EXPLAIN in writeup.pdf]: Why are these two axioms together sufficient to
-# fully characterize Store/Select behavior? (2–3 sentences)
+# [EXPLAIN] in a comment below: Why are these two axioms together sufficient
+# to fully characterize Store/Select behavior? (2–3 sentences)
 # ---------------------------------------------------------------------------
 def part_d():
     a = Array('a', IntSort(), IntSort())

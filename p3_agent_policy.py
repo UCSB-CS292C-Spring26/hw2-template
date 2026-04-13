@@ -115,7 +115,7 @@ def part_b():
     # Q3: Is there ANY role that can shell_exec on a sensitive resource?
     # TODO
 
-    # Q4: [EXPLAIN] Remove R4 — what dangerous action becomes possible?
+    # Q4: [EXPLAIN] in a comment Remove R4 — what dangerous action becomes possible?
     # TODO: Create a modified policy without R4, demonstrate the new capability.
 
 
@@ -145,7 +145,7 @@ def part_c():
     3. The twist: the sensitivity changes BETWEEN steps. Encode this by
        using two copies of is_sensitive (before and after).
     4. Check if the developer can effectively access a sensitive resource.
-    5. [EXPLAIN] Propose and implement a fix.
+    5. [EXPLAIN] in a comment Propose and implement a fix.
     """
     print("=== Part (c): Privilege Escalation ===\n")
 

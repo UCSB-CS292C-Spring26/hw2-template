@@ -37,12 +37,13 @@ for f in p1_z3_warmup.py p2_vcgen.py p3_agent_policy.py p4_tool_chain.py p5_bonu
 done
 echo ""
 
-# Check writeup
-echo "Writeup"
-if [ -f "writeup.pdf" ]; then
-    pass "writeup.pdf exists"
+# Check for [EXPLAIN] comments
+echo "Explanations"
+explain_count=$(grep -r "\[EXPLAIN\]" p*.py 2>/dev/null | grep -v "TODO" | wc -l | tr -d ' ')
+if [ "$explain_count" -ge 3 ]; then
+    pass "Found $explain_count [EXPLAIN] comments with content"
 else
-    fail "writeup.pdf not found (required for pen-and-paper problems)"
+    warn "Only $explain_count [EXPLAIN] comments found — make sure you've answered all explanation prompts"
 fi
 echo ""
 

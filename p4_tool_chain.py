@@ -260,7 +260,7 @@ def part_b():
     verify_property_bounded("Read-before-write", K, negate_read_before_write)
     verify_property_bounded("No-exfiltration", K, negate_no_exfil)
 
-    # [EXPLAIN in writeup.pdf]:
+    # [EXPLAIN] in a comment in a comment:
     # Compare the DFA monitor approach (Part a) with the Z3 bounded approach:
     # What does each one catch that the other might miss?
 
@@ -271,7 +271,7 @@ def part_b():
 # Find a trace of length 6 that is ACCEPTED by all three monitors but
 # still violates a safety property not covered by the monitors.
 #
-# [EXPLAIN] in writeup.pdf:
+# [EXPLAIN] in a comment in writeup.pdf:
 # 1. What property does your trace violate?
 # 2. Why don't the three monitors catch it?
 # 3. What additional monitor would you add to catch it?

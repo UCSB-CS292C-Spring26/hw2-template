@@ -26,11 +26,9 @@ python3 -c "from z3 import *; x = Int('x'); print(simplify(x + 0))"
 Push all work to this repo before the deadline. Your repo should contain:
 
 1. All `.py` files with completed implementations.
-2. A **writeup.pdf** containing:
-   - Pen-and-paper derivations (Problems 1c, 2a).
-   - English explanations where marked **[EXPLAIN]**.
-   - All program output (copy-paste or screenshot).
-3. Run `bash check.sh` before submitting.
+2. Run `bash check.sh` before submitting.
+
+**All explanations go in Python comments/docstrings** — there is no separate writeup. Every `[EXPLAIN]` prompt should be answered as a comment in the corresponding function. This makes grading straightforward: we run your code and read your comments.
 
 ## Files
 
@@ -52,7 +50,7 @@ This problem gets you comfortable with the Z3 API and tests your understanding o
 
 **Part (b) — 3 pts:** Prove a universally quantified statement valid using Z3.
 
-**Part (c) — 5 pts: The EUF Puzzle [PEN-AND-PAPER + CODE]**
+**Part (c) — 5 pts: The EUF Puzzle**
 
 Consider the following formula over an uninterpreted function `f`:
 
@@ -60,8 +58,8 @@ Consider the following formula over an uninterpreted function `f`:
 f(f(x)) = x  ∧  f(f(f(x))) = x  ∧  f(x) ≠ x
 ```
 
-1. **Before running Z3**, work out by hand whether this is satisfiable or unsatisfiable. Show your reasoning in your writeup (hint: what can you derive about `f(x)` by applying `f` to both sides of the first equation?). This is worth 3 of the 5 points.
-2. Then check your answer with Z3. If SAT, print the model.
+1. Check satisfiability with Z3. If SAT, print the model.
+2. **Use Z3 to derive why** the result is what it is. Specifically, write Z3 checks that test the key intermediate step: from `f(f(x)) = x`, what can you conclude about `f(f(f(x)))` in terms of `f(x)`? Encode this derivation as a series of Z3 validity checks (each should print what it's checking and whether it holds). This demonstrates you understand the proof, not just the answer.
 
 **Part (d) — 4 pts:** Using Z3's array theory, prove the **read-over-write axiom** and the **read-over-write-miss axiom** (two separate checks):
 
@@ -70,15 +68,15 @@ f(f(x)) = x  ∧  f(f(f(x))) = x  ∧  f(x) ≠ x
 (2)  i ≠ j  →  Select(Store(a, i, v), j) = Select(a, j)
 ```
 
-**[EXPLAIN]** In 2–3 sentences: why are these two axioms together sufficient to fully characterize the behavior of `Store` and `Select`?
+`[EXPLAIN]` in a comment: why are these two axioms together sufficient to fully characterize the behavior of `Store` and `Select`?
 
 ---
 
 ## Problem 2: Hoare Logic VCG for IMP (30 points)
 
-### Part (a) — Pen-and-Paper Derivation (6 pts) [WRITEUP ONLY]
+### Part (a) — WP Derivation via Z3 (6 pts)
 
-Manually compute the weakest precondition of the following program with respect to the given postcondition. Show every step of the wp computation (no Z3 — just algebra).
+Compute the weakest precondition of the following program with respect to the given postcondition — but do it **using your VCG**, not by hand.
 
 ```
 { ??? }
@@ -90,7 +88,8 @@ else
 { y > 0 }
 ```
 
-State the weakest precondition you computed. Then: is `{ x >= 0 }` a valid precondition? Is `{ x > -1 }` ? Justify each answer.
+1. Build this program as an IMP AST and call `wp()` to get the weakest precondition. Print the Z3 formula.
+2. Then use Z3 to check: is `{ x >= 0 }` a valid precondition? Is `{ x > -1 }` ? Is `{ x == -1 }` ? For each, print SAT/UNSAT and explain the result in a comment.
 
 ### Part (b) — Implement the VCG (12 pts)
 
@@ -113,7 +112,7 @@ The skeleton provides **three programs without loop invariants**. For each one, 
 
 1. **Discover** a correct loop invariant.
 2. Add it to the program and verify it passes your VCG.
-3. **[EXPLAIN]** In 2–3 sentences, describe *how* you found the invariant and *why* it works.
+3. `[EXPLAIN]` in a comment in each function: *how* you found the invariant and *why* it works (2–3 sentences).
 
 The programs are:
 
@@ -122,8 +121,7 @@ The programs are:
 { a >= 0 }
 i := 0; r := 0;
 while i < a  invariant ???  do
-  r := r + b;
-  i := i + 1;
+  r := r + b;  i := i + 1;
 { r == a * b }
 ```
 
@@ -132,8 +130,7 @@ while i < a  invariant ???  do
 { n >= 0 }
 i := 0; p := 1;
 while i < n  invariant ???  do
-  p := p * 2;
-  i := i + 1;
+  p := p * 2;  i := i + 1;
 { p == 2^n }
 ```
 *(Hint: Z3 does not have a built-in power operator. Think about how to express `2^n` using the variables available in the loop.)*
@@ -143,8 +140,7 @@ while i < n  invariant ???  do
 { n >= 1 }
 i := 1; s := 0;
 while i <= n  invariant ???  do
-  s := s + i;
-  i := i + 1;
+  s := s + i;  i := i + 1;
 { 2 * s == n * (n + 1) }
 ```
 
@@ -152,9 +148,9 @@ while i <= n  invariant ???  do
 
 The skeleton contains a function `test_buggy_div()` that attempts to verify an integer division program. The invariant provided is **wrong** — it is too weak. Your VCG should report that verification fails.
 
-1. Run it and confirm it fails.
-2. **[EXPLAIN]** Which side VC fails (preservation or postcondition)? Why?  Give a concrete state (values of `q`, `r`, `x`, `y`) where the invariant holds but the postcondition does not.
-3. **Fix** the invariant and re-verify.
+1. Run it and confirm it fails. Your output should show which VC fails.
+2. `[EXPLAIN]` in a comment: Which side VC fails (preservation or postcondition)? Why? Give a concrete state (values of `q`, `r`, `x`, `y`) where the invariant holds but the postcondition does not.
+3. **Fix** the invariant and re-verify. Print "FIXED: Verified" on success.
 
 ---
 
@@ -176,12 +172,12 @@ Encode the following rules as Z3 constraints using uninterpreted sorts and funct
 
 ### Part (b) — Policy Queries (8 pts)
 
-Use Z3 to answer:
+Use Z3 to answer these four queries. For each, print SAT/UNSAT, the model (if SAT), and a one-line comment explaining the result.
 
 1. Can a developer write to a sensitive file they don't own that is in the sandbox?
 2. Can an admin `network_fetch` a resource outside the sandbox?
 3. Is there *any* role that can `shell_exec` on a sensitive resource?
-4. **[EXPLAIN]** Suppose we remove rule R4. What is the most dangerous action that becomes possible? Use Z3 to demonstrate it.
+4. Remove rule R4, then show what dangerous action becomes possible. Print the specific violating model.
 
 ### Part (c) — Privilege Escalation (7 pts)
 
@@ -190,7 +186,7 @@ Suppose developers can invoke `shell_exec` on non-sensitive sandbox resources (n
 Model this as a **2-step trace**: the developer first calls `shell_exec` to change a resource's sensitivity, then calls `shell_exec` again on the (now non-sensitive) resource.
 
 1. Encode this in Z3 and check: can the developer effectively bypass R4?
-2. **[EXPLAIN]** Propose a fix (a new constraint) that prevents this escalation. Implement it and verify with Z3.
+2. Propose a fix (a new constraint) that prevents this escalation. Implement it and verify with Z3. Print "ESCALATION BLOCKED" on success.
 
 ---
 
@@ -208,7 +204,7 @@ Implement three runtime monitors as Python classes in `p4_tool_chain.py`. Each m
 | `ReadBeforeWriteMonitor` | Deny any `file_write` to a path that hasn't been `file_read` first. |
 | `NoExfilMonitor` | After any `file_read` of a sensitive resource, deny all subsequent `network_fetch` calls. |
 
-The monitors must be **stateful** (they track what has happened so far). Test each on the provided trace examples.
+The monitors must be **stateful** (they track what has happened so far). Test each on the provided trace examples. Your output should show each event and the monitor's decision.
 
 ### Part (b) — Bounded Trace Verification with Z3 (8 pts)
 
@@ -219,15 +215,15 @@ For each property:
 2. Assert the **negation** of the property (looking for a violation).
 3. If SAT, print the counterexample trace. If UNSAT, the property holds for all traces up to length k.
 
-**[EXPLAIN]** Compare the DFA monitor approach with the Z3 bounded approach: what does each one catch that the other might miss?
+`[EXPLAIN]` in a comment: Compare the DFA monitor approach with the Z3 bounded approach — what does each one catch that the other might miss?
 
 ### Part (c) — Monitor Completeness (4 pts)
 
-The `ComposedMonitor` runs all three monitors in parallel. Find a trace of length 6 that:
+The `ComposedMonitor` runs all three monitors in parallel. Construct a trace of length 6 that:
 1. Is **accepted** by the composed monitor (all three monitors allow every step), AND
 2. Is still **dangerous** — it violates a property not covered by any of the three monitors.
 
-Describe the property being violated and **[EXPLAIN]** why the monitors miss it.
+Print the trace with monitor decisions, then print a comment naming the property being violated and why the monitors miss it.
 
 ---
 
@@ -240,11 +236,11 @@ Two agent skills are composed sequentially:
 
 The composed skill should satisfy: `file_unchanged ∧ output_written ∧ no_other_files_modified`.
 
-**Part (a):** Using Z3 arrays to model the filesystem (array from path-ID to content-hash), encode Skills A and B as Hoare triples and verify the composed postcondition using the sequence rule.
+**Part (a) — 4 pts:** Using Z3 arrays to model the filesystem (array from path-ID to content-hash), encode Skills A and B as Hoare triples and verify the composed postcondition using the sequence rule.
 
-**Part (b):** Introduce a bug: Skill B accidentally overwrites the input file (writes to the same path Skill A read from). Show that the composed postcondition fails and print the Z3 counterexample.
+**Part (b) — 3 pts:** Introduce a bug: Skill B accidentally overwrites the input file (writes to the same path Skill A read from). Show that the composed postcondition fails and print the Z3 counterexample.
 
-**Part (c): [EXPLAIN]** In 3–4 sentences, connect this to the real world: how does this kind of composition bug manifest in actual agent workflows? Give a concrete example from your experience with Claude Code or similar tools.
+**Part (c) — 3 pts:** `[EXPLAIN]` in a comment (3–4 sentences): how does this kind of composition bug manifest in actual agent workflows? Give a concrete example from your experience with Claude Code or similar tools.
 
 ---
 
@@ -259,6 +255,16 @@ The composed skill should satisfy: `file_unchanged ∧ output_written ∧ no_oth
 | Problem 5: Bonus — Skill Composition | 10 |
 | **Total** | **90 + 10 bonus** |
 
+## Grading Method
+
+**All grading is based on running your code.** We will:
+
+1. Run each `.py` file and check the output matches expected results.
+2. Read your `[EXPLAIN]` comments for correctness and specificity.
+3. Check that your invariants actually verify (not hardcoded results).
+
+There is no separate writeup/PDF required. Everything is in your `.py` files.
+
 ## Tips
 
 - **Start with Problem 1** to get comfortable with Z3 before tackling harder problems.
@@ -270,4 +276,4 @@ The composed skill should satisfy: `file_unchanged ∧ output_written ∧ no_oth
 
 ## Academic Integrity
 
-Using AI coding assistants is permitted and encouraged. You must understand and be able to explain every line of your submission. All AI-generated content must be attributed. The **[EXPLAIN]** and **pen-and-paper** sections are specifically designed to test understanding — vague or generic explanations will receive zero credit. The instructor reserves the right to conduct oral examinations.
+Using AI coding assistants is permitted and encouraged. You must understand and be able to explain every line of your submission. All AI-generated content must be attributed. The `[EXPLAIN]` comments are specifically designed to test understanding — vague or generic explanations will receive zero credit. The instructor reserves the right to conduct oral examinations.
