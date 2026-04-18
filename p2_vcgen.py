@@ -5,6 +5,7 @@ Implement weakest-precondition-based verification condition generation
 for a simple IMP language, using Z3 to discharge the VCs.
 
 Part (a): Compute wp using your VCG and analyze preconditions with Z3.
+          NOTE: Part (a) depends on Part (b). Implement Part (b) first, then come back to Part (a).
 Part (b): Implement wp() and verify() below.
 Part (c): Discover loop invariants for three programs.
 Part (d): Find and fix a bug in a provided invariant.
@@ -47,20 +48,20 @@ class Compare:
     right: AExp
 
 @dataclass
-class Not:
+class ImpNot:
     expr: 'BExp'
 
 @dataclass
-class And:
+class ImpAnd:
     left: 'BExp'
     right: 'BExp'
 
 @dataclass
-class Or:
+class ImpOr:
     left: 'BExp'
     right: 'BExp'
 
-BExp = Union[BoolConst, Compare, Not, And, Or]
+BExp = Union[BoolConst, Compare, ImpNot, ImpAnd, ImpOr]
 
 @dataclass
 class Assign:
@@ -121,9 +122,9 @@ def bexp_to_z3(e: BExp) -> BoolRef:
             lz, rz = aexp_to_z3(l), aexp_to_z3(r)
             return {'<': lz < rz, '<=': lz <= rz, '>': lz > rz,
                     '>=': lz >= rz, '==': lz == rz, '!=': lz != rz}[op]
-        case Not(inner):     return z3.Not(bexp_to_z3(inner))
-        case And(l, r):      return z3.And(bexp_to_z3(l), bexp_to_z3(r))
-        case Or(l, r):       return z3.Or(bexp_to_z3(l), bexp_to_z3(r))
+        case ImpNot(inner):  return z3.Not(bexp_to_z3(inner))
+        case ImpAnd(l, r):   return z3.And(bexp_to_z3(l), bexp_to_z3(r))
+        case ImpOr(l, r):    return z3.Or(bexp_to_z3(l), bexp_to_z3(r))
         case _: raise ValueError(f"Unknown BExp: {e}")
 
 def z3_substitute_var(formula: ExprRef, var_name: str, replacement: ArithRef) -> ExprRef:
@@ -203,12 +204,12 @@ def verify(pre: BExp, stmt: Stmt, post: BExp, label: str = "Program"):
 
 def test_swap():
     """{ x == a ∧ y == b }  t:=x; x:=y; y:=t  { x == b ∧ y == a }"""
-    pre = And(Compare('==', Var('x'), Var('a')),
-              Compare('==', Var('y'), Var('b')))
+    pre = ImpAnd(Compare('==', Var('x'), Var('a')),
+                 Compare('==', Var('y'), Var('b')))
     stmt = Seq(Assign('t', Var('x')),
                Seq(Assign('x', Var('y')), Assign('y', Var('t'))))
-    post = And(Compare('==', Var('x'), Var('b')),
-               Compare('==', Var('y'), Var('a')))
+    post = ImpAnd(Compare('==', Var('x'), Var('b')),
+                  Compare('==', Var('y'), Var('a')))
     verify(pre, stmt, post, "Swap")
 
 
@@ -218,9 +219,9 @@ def test_abs():
     stmt = If(Compare('<', Var('x'), IntConst(0)),
               Assign('r', BinOp('-', IntConst(0), Var('x'))),
               Assign('r', Var('x')))
-    post = And(Compare('>=', Var('r'), IntConst(0)),
-               Or(Compare('==', Var('r'), Var('x')),
-                  Compare('==', Var('r'), BinOp('-', IntConst(0), Var('x')))))
+    post = ImpAnd(Compare('>=', Var('r'), IntConst(0)),
+                  ImpOr(Compare('==', Var('r'), Var('x')),
+                        Compare('==', Var('r'), BinOp('-', IntConst(0), Var('x')))))
     verify(pre, stmt, post, "Absolute Value")
 
 
@@ -253,29 +254,27 @@ def test_mult():
     verify(pre, stmt, post, "C1: Multiplication by Addition")
 
 
-def test_power():
+def test_add():
     """
-    Program C2 — Compute 2^n:
-      { n >= 0 }
-      i := 0; p := 1;
-      while i < n  invariant ???  do
-        p := p * 2;  i := i + 1;
-      { p == 2^n }
+    Program C2 — Addition by loop:
+      { n >= 0 ∧ m >= 0 }
+      i := 0; r := n;
+      while i < m  invariant ???  do
+        r := r + 1;  i := i + 1;
+      { r == n + m }
 
-    NOTE: Z3 does not have a built-in power operator. You will need to think
-    about how to express the relationship between p, i, and n using only
-    operations Z3 understands (arithmetic, comparisons, etc.).
-
-    Hint: What is the relationship between p and i at each iteration?
-    Can you express the invariant without using exponentiation?
-
-    TODO: Replace the invariant. You may also need to adjust the postcondition
-    encoding to avoid using exponentiation directly.
+    TODO: Replace the invariant below with a correct one.
     """
-    # This one is intentionally tricky. Think carefully before coding.
-    print("=== C2: Power of 2 ===")
-    print("  TODO: This requires creative encoding. See README hints.")
-    print()
+    pre = ImpAnd(Compare('>=', Var('n'), IntConst(0)),
+                 Compare('>=', Var('m'), IntConst(0)))
+    inv = BoolConst(True)  # ← WRONG — replace with correct invariant
+    body = Seq(Assign('r', BinOp('+', Var('r'), IntConst(1))),
+               Assign('i', BinOp('+', Var('i'), IntConst(1))))
+    stmt = Seq(Assign('i', IntConst(0)),
+               Seq(Assign('r', Var('n')),
+                   While(Compare('<', Var('i'), Var('m')), inv, body)))
+    post = Compare('==', Var('r'), BinOp('+', Var('n'), Var('m')))
+    verify(pre, stmt, post, "C2: Addition by Loop")
 
 
 def test_sum():
@@ -323,8 +322,8 @@ def test_buggy_div():
     The invariant q * y + r == x is correct but INCOMPLETE.
     It is missing a crucial conjunct. Find it.
     """
-    pre = And(Compare('>=', Var('x'), IntConst(0)),
-              Compare('>', Var('y'), IntConst(0)))
+    pre = ImpAnd(Compare('>=', Var('x'), IntConst(0)),
+                 Compare('>', Var('y'), IntConst(0)))
 
     # BUGGY invariant — intentionally too weak
     inv_buggy = Compare('==',
@@ -337,16 +336,16 @@ def test_buggy_div():
                Seq(Assign('r', Var('x')),
                    While(Compare('>=', Var('r'), Var('y')),
                          inv_buggy, body)))
-    post = And(Compare('==',
-                   BinOp('+', BinOp('*', Var('q'), Var('y')), Var('r')),
-                   Var('x')),
-               And(Compare('>=', Var('r'), IntConst(0)),
-                   Compare('<', Var('r'), Var('y'))))
+    post = ImpAnd(Compare('==',
+                       BinOp('+', BinOp('*', Var('q'), Var('y')), Var('r')),
+                       Var('x')),
+                  ImpAnd(Compare('>=', Var('r'), IntConst(0)),
+                         Compare('<', Var('r'), Var('y'))))
 
     verify(pre, stmt, post, "Buggy Division (should FAIL)")
 
     # TODO: Uncomment and fix the invariant below, then re-verify.
-    # inv_fixed = And(
+    # inv_fixed = ImpAnd(
     #     Compare('==', BinOp('+', BinOp('*', Var('q'), Var('y')), Var('r')), Var('x')),
     #     ???  # ← Add the missing conjunct
     # )
@@ -419,7 +418,7 @@ if __name__ == "__main__":
     print("Part (c): Invariant Discovery")
     print("=" * 60)
     test_mult()
-    test_power()
+    test_add()
     test_sum()
 
     print("=" * 60)

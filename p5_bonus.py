@@ -144,8 +144,8 @@ def verify_buggy_composition():
 #
 # [EXPLAIN] in a comment below (3–4 sentences):
 # How does this kind of composition bug manifest in actual agent workflows?
-# Give a concrete example from your experience with Claude Code, Cursor,
-# or similar coding agents. What would a runtime monitor need to check to
+# Give a concrete example from your experience with coding agents (Claude Code,
+# Cursor, Copilot, etc.) or from what you learned in class. What would a runtime monitor need to check to
 # prevent this class of bugs?
 
 # TODO: Write your explanation here as a comment.

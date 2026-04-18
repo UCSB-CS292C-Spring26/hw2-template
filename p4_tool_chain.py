@@ -65,6 +65,10 @@ class ReadBeforeWriteMonitor:
     the path is added to the set. When a file_write occurs, the path
     must already be in the set, or the monitor denies it.
 
+    Unlike SandboxMonitor, this monitor does NOT enter an absorbing violation
+    state — it only denies the specific file_write that has no prior read.
+    Subsequent operations are evaluated independently.
+
     TODO: Implement __init__ and step.
     """
 
@@ -167,6 +171,9 @@ def test_monitors():
 # ============================================================================
 
 # Tool encoding for Z3
+# These integer constants correspond to the string tool names in ToolEvent:
+# FILE_READ=0 ↔ "file_read", FILE_WRITE=1 ↔ "file_write",
+# SHELL_EXEC=2 ↔ "shell_exec", NETWORK_FETCH=3 ↔ "network_fetch"
 FILE_READ = 0
 FILE_WRITE = 1
 SHELL_EXEC = 2
@@ -211,8 +218,8 @@ def verify_property_bounded(name, K, prop_negation_fn):
             t = m.eval(trace['tool'][i]).as_long()
             names = {0: "file_read", 1: "file_write", 2: "shell_exec", 3: "net_fetch"}
             p = m.eval(trace['path_id'][i])
-            sb = m.eval(trace['in_sandbox'][i])
-            se = m.eval(trace['is_sensitive'][i])
+            sb = m.eval(trace['in_sandbox'][i], model_completion=True)
+            se = m.eval(trace['is_sensitive'][i], model_completion=True)
             print(f"    step {i}: {names.get(t, '?'):12s} path={p} sandbox={sb} sensitive={se}")
     else:
         print("NO VIOLATION POSSIBLE (property holds for all traces)")
