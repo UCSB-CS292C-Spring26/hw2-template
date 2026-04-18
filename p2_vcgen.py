@@ -364,7 +364,7 @@ def test_buggy_div():
 # 1. Call wp() to get the weakest precondition. Print the Z3 formula.
 # 2. Use Z3 to check whether each of the following is a valid precondition:
 #    - { x >= 0 }
-#    - { x > -1 }
+#    - { x >= -1 }
 #    - { x == -1 }
 #    For each, print whether it's valid and add a comment explaining why.
 # ============================================================================
@@ -387,7 +387,7 @@ def test_wp_derivation():
     # TODO: For each candidate precondition, check if pre → wp is valid
     # candidates = [
     #     ("x >= 0",  z3_var('x') >= 0),
-    #     ("x > -1",  z3_var('x') > -1),
+    #     ("x >= -1", z3_var('x') >= -1),
     #     ("x == -1", z3_var('x') == -1),
     # ]
     # for name, pre in candidates:

@@ -124,11 +124,12 @@ def part_b():
 #
 # New rule R6: Developers may shell_exec on non-sensitive sandbox resources.
 #
-# Attack scenario: A developer uses shell_exec to change a resource's
-# sensitivity flag (e.g., running chmod or modifying a config), then
-# exploits the now-non-sensitive resource.
+# Attack scenario: A developer uses shell_exec on a non-sensitive sandbox
+# resource to change ANOTHER resource's sensitivity flag (e.g., modifying
+# a config file that controls access). This makes a previously sensitive
+# resource become non-sensitive, bypassing R4 on the next step.
 #
-# Model this as a 2-step trace where the resource's sensitivity changes
+# Model this as a 2-step trace where a resource's sensitivity changes
 # between steps.
 # ============================================================================
 
@@ -137,15 +138,16 @@ def part_c():
     TODO:
     1. Add rule R6 to the policy.
     2. Model a 2-step trace:
-       - Step 1: developer calls shell_exec on resource r
-         (r is non-sensitive and in sandbox — allowed by R6)
-       - After step 1: r becomes sensitive (side-effect of the shell command)
-       - Step 2: developer calls shell_exec on r again
-         (r is now sensitive — should be blocked by R4, but is it?)
-    3. The twist: the sensitivity changes BETWEEN steps. Encode this by
+       - Step 1: developer calls shell_exec on resource r1
+         (r1 is non-sensitive and in sandbox — allowed by R6)
+         Side-effect: this command changes resource r2 from sensitive to
+         non-sensitive (e.g., modifying an access-control config)
+       - Step 2: developer calls shell_exec on resource r2
+         (r2 is NOW non-sensitive — was it allowed before? is it allowed now?)
+    3. The twist: r2's sensitivity changes BETWEEN steps. Encode this by
        using two copies of is_sensitive (before and after).
-    4. Check if the developer can effectively access a sensitive resource.
-    5. [EXPLAIN] in a comment Propose and implement a fix.
+    4. Check if the developer can effectively access a previously-sensitive resource.
+    5. [EXPLAIN] in a comment: Propose and implement a fix.
     """
     print("=== Part (c): Privilege Escalation ===\n")
 

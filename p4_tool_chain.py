@@ -260,7 +260,7 @@ def part_b():
     verify_property_bounded("Read-before-write", K, negate_read_before_write)
     verify_property_bounded("No-exfiltration", K, negate_no_exfil)
 
-    # [EXPLAIN] in a comment in a comment:
+    # [EXPLAIN] in a comment:
     # Compare the DFA monitor approach (Part a) with the Z3 bounded approach:
     # What does each one catch that the other might miss?
 

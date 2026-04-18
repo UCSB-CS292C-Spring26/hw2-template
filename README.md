@@ -89,7 +89,7 @@ else
 ```
 
 1. Build this program as an IMP AST and call `wp()` to get the weakest precondition. Print the Z3 formula.
-2. Then use Z3 to check: is `{ x >= 0 }` a valid precondition? Is `{ x > -1 }` ? Is `{ x == -1 }` ? For each, print SAT/UNSAT and explain the result in a comment.
+2. Then use Z3 to check: is `{ x >= 0 }` a valid precondition? Is `{ x >= -1 }` ? Is `{ x == -1 }` ? For each, print SAT/UNSAT and explain the result in a comment.
 
 ### Part (b) — Implement the VCG (12 pts)
 
@@ -181,9 +181,9 @@ Use Z3 to answer these four queries. For each, print SAT/UNSAT, the model (if SA
 
 ### Part (c) — Privilege Escalation (7 pts)
 
-Suppose developers can invoke `shell_exec` on non-sensitive sandbox resources (new rule R6). A clever attacker notices that one `shell_exec` target lets them run `chmod` to change a file's sensitivity flag.
+Suppose developers can invoke `shell_exec` on non-sensitive sandbox resources (new rule R6). A clever attacker notices that `shell_exec` can modify a config file that controls which resources are marked sensitive.
 
-Model this as a **2-step trace**: the developer first calls `shell_exec` to change a resource's sensitivity, then calls `shell_exec` again on the (now non-sensitive) resource.
+Model this as a **2-step trace**: the developer first calls `shell_exec` on a non-sensitive sandbox resource to change another resource's sensitivity flag (making it non-sensitive), then calls `shell_exec` on the now-non-sensitive target.
 
 1. Encode this in Z3 and check: can the developer effectively bypass R4?
 2. Propose a fix (a new constraint) that prevents this escalation. Implement it and verify with Z3. Print "ESCALATION BLOCKED" on success.
