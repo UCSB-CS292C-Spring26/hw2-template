@@ -271,7 +271,7 @@ def part_b():
 # Find a trace of length 6 that is ACCEPTED by all three monitors but
 # still violates a safety property not covered by the monitors.
 #
-# [EXPLAIN] in a comment in writeup.pdf:
+# [EXPLAIN] in a comment in part_c():
 # 1. What property does your trace violate?
 # 2. Why don't the three monitors catch it?
 # 3. What additional monitor would you add to catch it?
@@ -306,7 +306,7 @@ def part_c():
             all_allowed = False
 
     print(f"\n  All allowed: {all_allowed}")
-    print("  TODO: Explain in writeup.pdf what property this trace violates.")
+    # [EXPLAIN] in a comment: what property does this trace violate and why?
     print()
 
 

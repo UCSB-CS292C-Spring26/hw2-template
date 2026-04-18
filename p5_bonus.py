@@ -140,13 +140,16 @@ def verify_buggy_composition():
 
 
 # ============================================================================
-# Part (c): Real-world connection — 3 pts [WRITEUP ONLY]
+# Part (c): Real-world connection — 3 pts
 #
-# [EXPLAIN] in writeup.pdf (3–4 sentences):
+# [EXPLAIN] in a comment below (3–4 sentences):
 # How does this kind of composition bug manifest in actual agent workflows?
 # Give a concrete example from your experience with Claude Code, Cursor,
 # or similar coding agents. What would a runtime monitor need to check to
 # prevent this class of bugs?
+
+# TODO: Write your explanation here as a comment.
+# ...
 # ============================================================================
 
 
