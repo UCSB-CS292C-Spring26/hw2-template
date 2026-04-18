@@ -125,15 +125,14 @@ while i < a  invariant ???  do
 { r == a * b }
 ```
 
-**Program C2 — Power of 2:**
+**Program C2 — Addition by loop:**
 ```
-{ n >= 0 }
-i := 0; p := 1;
-while i < n  invariant ???  do
-  p := p * 2;  i := i + 1;
-{ p == 2^n }
+{ n >= 0 ∧ m >= 0 }
+i := 0; r := n;
+while i < m  invariant ???  do
+  r := r + 1;  i := i + 1;
+{ r == n + m }
 ```
-*(Hint: Z3 does not have a built-in power operator. Think about how to express `2^n` using the variables available in the loop.)*
 
 **Program C3 — Sum of first n integers:**
 ```
