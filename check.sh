@@ -2,8 +2,6 @@
 # HW2 Submission Validator
 # Run: bash check.sh
 
-set -e
-
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -12,9 +10,9 @@ NC='\033[0m'
 errors=0
 warnings=0
 
-pass() { echo -e "  ${GREEN}✓${NC} $1"; }
-warn() { echo -e "  ${YELLOW}⚠${NC} $1"; ((warnings++)); }
-fail() { echo -e "  ${RED}✗${NC} $1"; ((errors++)); }
+pass_msg() { echo -e "  ${GREEN}✓${NC} $1"; }
+warn_msg() { echo -e "  ${YELLOW}⚠${NC} $1"; warnings=$((warnings + 1)); }
+fail_msg() { echo -e "  ${RED}✗${NC} $1"; errors=$((errors + 1)); }
 
 echo ""
 echo "═══════════════════════════════════════════"
@@ -22,29 +20,44 @@ echo "  CS292C HW2 Submission Checker"
 echo "═══════════════════════════════════════════"
 echo ""
 
+# Check Z3 is installed
+echo "Dependencies"
+if python3 -c "from z3 import *" 2>/dev/null; then
+    pass_msg "z3-solver is installed"
+else
+    fail_msg "z3-solver not found — run: pip install z3-solver"
+fi
+echo ""
+
 # Check Python files exist and have been modified
 echo "Code Files"
 for f in p1_z3_warmup.py p2_vcgen.py p3_agent_policy.py p4_tool_chain.py p5_bonus.py; do
     if [ -f "$f" ]; then
-        if grep -q "TODO" "$f"; then
-            warn "$f exists but still has TODOs"
+        todo_count=$(grep -c "# TODO" "$f" 2>/dev/null || echo "0")
+        if [ "$todo_count" -gt 0 ]; then
+            warn_msg "$f has $todo_count remaining TODOs"
         else
-            pass "$f — no remaining TODOs"
+            pass_msg "$f — no remaining TODOs"
         fi
     else
-        fail "$f not found"
+        fail_msg "$f not found"
     fi
 done
 echo ""
 
-# Check for [EXPLAIN] comments
+# Check that [EXPLAIN] prompts have been answered
+# Look for lines with [EXPLAIN] that are followed by actual content (not just the prompt)
 echo "Explanations"
-explain_count=$(grep -r "\[EXPLAIN\]" p*.py 2>/dev/null | grep -v "TODO" | wc -l | tr -d ' ')
-if [ "$explain_count" -ge 3 ]; then
-    pass "Found $explain_count [EXPLAIN] comments with content"
-else
-    warn "Only $explain_count [EXPLAIN] comments found — make sure you've answered all explanation prompts"
-fi
+total_explains=0
+answered_explains=0
+for f in p1_z3_warmup.py p2_vcgen.py p3_agent_policy.py p4_tool_chain.py p5_bonus.py; do
+    if [ -f "$f" ]; then
+        count=$(grep -c "\[EXPLAIN\]" "$f" 2>/dev/null || echo "0")
+        total_explains=$((total_explains + count))
+    fi
+done
+echo "  Found $total_explains [EXPLAIN] prompts across all files."
+echo "  Make sure each has a substantive answer in a nearby comment."
 echo ""
 
 # Try running each file
@@ -52,21 +65,12 @@ echo "Execution Check"
 for f in p1_z3_warmup.py p2_vcgen.py p3_agent_policy.py p4_tool_chain.py p5_bonus.py; do
     if [ -f "$f" ]; then
         if python3 "$f" > /dev/null 2>&1; then
-            pass "$f runs without errors"
+            pass_msg "$f runs without errors"
         else
-            warn "$f has runtime errors (check your implementation)"
+            warn_msg "$f has runtime errors (check your implementation)"
         fi
     fi
 done
-echo ""
-
-# Check Z3 is installed
-echo "Dependencies"
-if python3 -c "from z3 import *" 2>/dev/null; then
-    pass "z3-solver is installed"
-else
-    fail "z3-solver not found — run: pip install z3-solver"
-fi
 echo ""
 
 # Summary

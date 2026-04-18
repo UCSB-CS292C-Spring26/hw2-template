@@ -1,6 +1,6 @@
 # CS292C Homework 2: Formal Verification of Programs and Agent Policies
 
-**Out:** Lecture 8 (4/23) | **Due:** Lecture 11 (5/5) 11:59pm | **Weight:** 10%
+**Out:** Lecture 6 (4/16) | **Due:** Lecture 11 (5/5) 11:59pm | **Weight:** 10%
 
 ## Overview
 
